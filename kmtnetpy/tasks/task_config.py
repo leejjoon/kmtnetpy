@@ -9,9 +9,8 @@ def set_celery_conf(**kw):
 
 
 def get_celery_conf():
-    if ("broker" not in _celery_conf) and ("KSP_CELERY_BROKER" in os.environ):
-        _celery_conf["broker"] = os.environ["KSP_CELERY_BROKER"]
-    c = dict(broker='amqp://guest@localhost:5673//',
-             backend='rpc://')
+    c = _celery_conf.copy()
+    if ("broker" not in c) and ("KSP_CELERY_BROKER" in os.environ):
+        c["broker"] = os.environ["KSP_CELERY_BROKER"]
 
     return c
