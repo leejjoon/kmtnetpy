@@ -4,8 +4,12 @@ from ..mpc.ksp_mpc import retrieve_mpc
 
 from ..detectors.ksp_detectors import find as find_detectors
 
+from .task_config import get_celery_conf
 
-app = Celery('task_ksp', backend='rpc://', broker='amqp://guest@localhost//')
+
+conf = get_celery_conf()
+app = Celery('task_ksp', **conf)
+# , backend='rpc://', broker='amqp://guest@localhost//')
 
 
 @app.task
