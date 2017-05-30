@@ -2,7 +2,7 @@ import os
 import glob
 import pandas as pd
 import astropy.io.fits as pyfits
-from astropy.wcs import WCS
+from astropy.wcs import WCS, NoConvergence
 from astropy.coordinates import SkyCoord
 
 PROCESSED_ROOT = "./PROCESSED"
@@ -61,26 +61,30 @@ def get_diff_cat(root, data_dir):
 def check_on_detector(wcs, c):
     try:
         x, y = c.to_pixel(wcs, mode="all")
-    except WCS.NoConvergence:
+    except NoConvergence:
         return False
 
     on_chip = (0 < x) & (x < wcs._naxis1) & (0 < y) & (y < wcs._naxis2)
 
-    return on_chip
+    if on_chip:
+        return (float(x), float(y))
+    else:
+        return False
 
 
 def _find1_on_detectors(wcs_list, c):
     for (qn, wcs) in enumerate(wcs_list):
-        if check_on_detector(wcs, c):
-            return qn
+        xy = check_on_detector(wcs, c)
+        if xy is not False:
+            return qn, xy
 
     return None
 
 
 def find_on_detectors(wcs_list, coords):
-    qn_list = [_find1_on_detectors(wcs_list, c) for c in coords]
+    qn_xy_list = [_find1_on_detectors(wcs_list, c) for c in coords]
 
-    return qn_list
+    return qn_xy_list
 
 
 def get_wcs_list_from_files(filename_key):
@@ -94,7 +98,7 @@ def get_wcs_list_from_files(filename_key):
 
 def find(filename_key, ra_list, dec_list):
     coords = SkyCoord(ra_list, dec_list, unit="deg")
-    wcs_list = get_wcs_list_from_files()
+    wcs_list = get_wcs_list_from_files(filename_key)
 
     kk = find_on_detectors(wcs_list, coords)
     return kk
