@@ -1,4 +1,5 @@
 import base64
+import StringIO
 import numpy as np
 from fitsio_helper import FitsioHelper
 
@@ -76,8 +77,22 @@ def get_stamps_from_key(filename_key, xy_list, size=64,
         return im_list
 
 
+# def imlist2string(im_list):
+#     fout = StringIO.StringIO()
+#     np.savez_compressed(fout, *im_list)
+#     s = fout.getvalue()
+
+#     return s
+
+
+# def string2imlist(s):
+#     fin = StringIO.StringIO(s)
+#     im_list = [v for n, v in np.load(fin).items()]
+
+#     return im_list
+
+
 def imlist2string(im_list):
-    import StringIO
     fout = StringIO.StringIO()
     np.savez_compressed(fout, *im_list)
     s = fout.getvalue()
@@ -86,9 +101,8 @@ def imlist2string(im_list):
 
 
 def string2imlist(s):
-    import StringIO
     fin = StringIO.StringIO(base64.decodestring(s))
-    im_list = np.load(fin).items()
+    im_list = [v for n, v in np.load(fin).items()]
 
     return im_list
 

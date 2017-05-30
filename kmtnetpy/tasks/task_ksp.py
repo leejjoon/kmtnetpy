@@ -9,7 +9,11 @@ from .task_config import get_celery_conf
 
 
 conf = get_celery_conf()
-app = Celery('task_ksp', **conf)
+print(conf)
+
+app = Celery('task_ksp', config_source=conf)
+
+# app = Celery('task_ksp', config_source=Struct(**conf))
 # , backend='rpc://', broker='amqp://guest@localhost//')
 
 
