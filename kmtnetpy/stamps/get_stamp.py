@@ -1,5 +1,8 @@
+import base64
 import numpy as np
 from fitsio_helper import FitsioHelper
+
+from ..utils.file_helper import (get_data_dir, get_root, get_filename)
 
 
 def get_slices(nx, cx0, dx, dx2=None):
@@ -51,8 +54,61 @@ def get_subims(hdu, xy_list, size=64):
     return im_list
 
 
+def get_stamps_from_key(filename_key, xy_list, size=64,
+                        as_string=False):
+
+    fn = get_filename(get_root(filename_key), get_data_dir(filename_key),
+                      ".nh.fits*")
+
+    hdu_list = FitsioHelper(fn)
+
+    if hdu_list.f[0].has_data():
+        hdu = hdu_list.get_hdu(0)
+    else:
+        hdu = hdu_list.get_hdu(1)
+
+    im_list = get_subims(hdu, xy_list, size)
+
+    if as_string:
+        s = imlist2string(im_list)
+        return s
+    else:
+        return im_list
+
+
+def imlist2string(im_list):
+    import StringIO
+    fout = StringIO.StringIO()
+    np.savez_compressed(fout, *im_list)
+    s = fout.getvalue()
+
+    return base64.encodestring(s)
+
+
+def string2imlist(s):
+    import StringIO
+    fin = StringIO.StringIO(base64.decodestring(s))
+    im_list = np.load(fin).items()
+
+    return im_list
+
+
 if 0:
-    fn = "PROCESSED/E489/E489-1/Q0/E489-1.Q0.B.160125_0529.C.049062.061920N2336.0060.nh.fits.fz"
+
+    l1 = {'filename_key': (u'E489-1', 'Q0', u'B', u'160125_0529',
+                           'C', u'049062'),
+          'id': u'20160125-ctio-000138'}
+
+    xy_list = [(176 - 1, 9125 - 1),
+               (16 - 1, 9195 - 1)]
+
+    im_list = get_stamps_from_key(l1["filename_key"], xy_list, size=64)
+
+
+if 0:
+    rootdir = "/home/jjlee/work/kmtnet/kmtnet_report"
+    fn0 = "PROCESSED/E489/E489-1/Q0/E489-1.Q0.B.160125_0529.C.049062.061920N2336.0060.nh.fits.fz"
+    fn = os.path.join(rootdir, fn0)
     hdu = FitsioHelper(fn).get_hdu(1)
 
     # cx, cy = 176 - 1, 9125 - 1

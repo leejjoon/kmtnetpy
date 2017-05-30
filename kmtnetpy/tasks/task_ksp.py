@@ -3,6 +3,7 @@ from celery import Celery
 from ..mpc.ksp_mpc import retrieve_mpc
 
 from ..detectors.ksp_detectors import find as find_detectors
+from ..stamps.get_stamp import get_stamps_from_key, string2imlist
 
 from .task_config import get_celery_conf
 
@@ -27,3 +28,10 @@ def query_mpc(entry_id, logid, groupid, ra, dec, jd):
 @app.task
 def find_detector(filename_key, ra_list, dec_list):
     return find_detectors(filename_key, ra_list, dec_list)
+
+
+@app.task
+def get_stamps_as_s(filename_key, xy_list, size=64):
+    s = get_stamps_from_key(filename_key, xy_list, size=size,
+                            as_string=True)
+    return s

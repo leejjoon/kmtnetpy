@@ -5,57 +5,25 @@ import astropy.io.fits as pyfits
 from astropy.wcs import WCS, NoConvergence
 from astropy.coordinates import SkyCoord
 
-PROCESSED_ROOT = "./PROCESSED"
-
-def get_data_dir(filename_key, qn, rootdir=None):
-    field_name = filename_key[0]
-    field_name0 = field_name.split("-")[0]
-
-    data_dir = os.path.join(field_name0, field_name, "Q%d" % qn)
-    if rootdir is not None:
-        data_dir = os.path.join(rootdir, data_dir)
-
-    return data_dir
-
-
-def get_root(filename_key, qn):
-    filename_key = list(filename_key)
-    root = ".".join(filename_key).replace(".Q0.", ".Q%d." % qn)
-
-    return root
+from ..utils.file_helper import (get_data_dir, get_root, get_filename)
 
 
 def get_wcs(root, data_dir):
-    fn0 = "".join([root, ".*", ".nh.fits*"])
-    fl = glob.glob(os.path.join(data_dir, fn0))
+    fn = get_filename(root, data_dir, ".nh.fits*")
 
-    if len(fl) == 1:
-        fn = fl[0]
-        f = pyfits.open(fn)
+    f = pyfits.open(fn)
+    wcs = WCS(f[-1].header)
 
-        wcs = WCS(f[-1].header)
-        return wcs
-    elif len(fl) == 0:
-        raise RuntimeError("no file found: %s" % fn0)
-    else:
-        raise RuntimeError("miltiple file found: %s" % fn0)
+    return wcs
 
 
 def get_diff_cat(root, data_dir):
+    fn = get_filename(root, data_dir, ".nh.REF-SUB.cat", subdir="Sub")
 
-    fn0 = "".join([root, ".*", ".nh.REF-SUB.cat"])
-    fl = glob.glob(os.path.join(data_dir, fn0))
+    f = pyfits.open(fn)
+    table = f[2].data
 
-    if len(fl) == 1:
-        fn = fl[0]
-        f = pyfits.open(fn)
-
-        table = f[2].data
-        return table
-    elif len(fl) == 0:
-        raise RuntimeError("no file found: %s" % fn0)
-    else:
-        raise RuntimeError("miltiple file found: %s" % fn0)
+    return table
 
 
 def check_on_detector(wcs, c):
@@ -89,8 +57,7 @@ def find_on_detectors(wcs_list, coords):
 
 def get_wcs_list_from_files(filename_key):
     wcs_list = [get_wcs(get_root(filename_key, qn),
-                        get_data_dir(filename_key, qn,
-                                     rootdir=PROCESSED_ROOT))
+                        get_data_dir(filename_key, qn))
                 for qn in range(4)]
 
     return wcs_list
