@@ -1,4 +1,4 @@
-import base64
+from base64 import encodestring, decodestring
 import StringIO
 import numpy as np
 from fitsio_helper import FitsioHelper
@@ -56,7 +56,7 @@ def get_subims(hdu, xy_list, size=64):
 
 
 def get_stamps_from_key(filename_key, xy_list, size=64,
-                        as_string=False):
+                        as_string=False, base64=True):
 
     fn = get_filename(get_root(filename_key), get_data_dir(filename_key),
                       ".nh.fits*")
@@ -71,37 +71,29 @@ def get_stamps_from_key(filename_key, xy_list, size=64,
     im_list = get_subims(hdu, xy_list, size)
 
     if as_string:
-        s = imlist2string(im_list)
+        s = imlist2string(im_list, base64=base64)
         return s
     else:
         return im_list
 
 
-# def imlist2string(im_list):
-#     fout = StringIO.StringIO()
-#     np.savez_compressed(fout, *im_list)
-#     s = fout.getvalue()
-
-#     return s
-
-
-# def string2imlist(s):
-#     fin = StringIO.StringIO(s)
-#     im_list = [v for n, v in np.load(fin).items()]
-
-#     return im_list
-
-
-def imlist2string(im_list):
+def imlist2string(im_list, base64=True):
     fout = StringIO.StringIO()
     np.savez_compressed(fout, *im_list)
     s = fout.getvalue()
 
-    return base64.encodestring(s)
+    if base64:
+        return encodestring(s)
+    else:
+        return s
 
 
-def string2imlist(s):
-    fin = StringIO.StringIO(base64.decodestring(s))
+def string2imlist(s, base64=True):
+    if base64:
+        fin = StringIO.StringIO(decodestring(s))
+    else:
+        fin = StringIO.StringIO(s)
+
     im_list = [v for n, v in np.load(fin).items()]
 
     return im_list
