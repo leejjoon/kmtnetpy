@@ -35,7 +35,7 @@ def find_detector(filename_key, ra_list, dec_list):
 
 
 @app.task
-def get_stamps_as_s(filename_key, xy_list, size=64):
+def get_stamps_as_s(filename_key, xy_list, size=64, base64=True):
     s = get_stamps_from_key(filename_key, xy_list, size=size,
-                            as_string=True)
+                            as_string=True, base64=base64)
     return s
