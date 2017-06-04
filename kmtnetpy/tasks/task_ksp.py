@@ -9,7 +9,7 @@ from .task_config import get_celery_conf
 
 
 conf = get_celery_conf()
-print(conf)
+# print(conf)
 
 app = Celery('task_ksp', config_source=conf)
 
