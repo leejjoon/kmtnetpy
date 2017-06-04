@@ -78,8 +78,13 @@ def get_stamps_from_key(filename_key, xy_list, size=64,
 
 
 def imlist2string(im_list, base64=True):
+    # fout = StringIO.StringIO()
+    # np.savez_compressed(fout, *im_list)
+    # s = fout.getvalue()
+
     fout = StringIO.StringIO()
-    np.savez_compressed(fout, *im_list)
+    cube = np.array(im_list)
+    np.savez_compressed(fout, cube)
     s = fout.getvalue()
 
     if base64:
@@ -94,7 +99,7 @@ def string2imlist(s, base64=True):
     else:
         fin = StringIO.StringIO(s)
 
-    im_list = [v for n, v in np.load(fin).items()]
+    im_list = list(np.load(fin)["arr_0"])
 
     return im_list
 
