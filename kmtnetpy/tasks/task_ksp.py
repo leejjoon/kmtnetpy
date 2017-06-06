@@ -40,3 +40,9 @@ def get_stamps_as_s(filename_key, xy_list, size=64, base64=True):
     s = get_stamps_from_key(filename_key, xy_list, size=size,
                             as_string=True, base64=base64)
     return s
+
+
+@app.task
+def get_diff_cat_as_s(filename_key, xy_list, base64=True):
+    s = get_diff_cat_from_key(filename_key, xy_list, base64=base64)
+    return s
