@@ -21,9 +21,9 @@ def get_diff_cat_from_key(filename_key, xy_list, return_cat=False,
                                    subdir="B_Filter/Subtraction"),
                       ".nh.REF-SUB.cat*")
 
-    fn = get_filename(get_root(filename_key),
-                      get_data_dir(filename_key),
-                      ".nh.sub.cat*")
+    # fn = get_filename(get_root(filename_key),
+    #                   get_data_dir(filename_key),
+    #                   ".nh.sub.cat*")
 
     f = pyfits.open(fn)
     d = f[2].data
