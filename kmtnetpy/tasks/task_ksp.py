@@ -3,7 +3,8 @@ from celery import Celery
 from ..mpc.ksp_mpc import retrieve_mpc
 
 from ..detectors.ksp_detectors import find as find_detectors
-from ..stamps.get_stamp import get_stamps_from_key, string2imlist
+from ..stamps import (get_diff_cat_from_key,
+                      get_stamps_from_key)
 
 from .task_config import get_celery_conf
 
